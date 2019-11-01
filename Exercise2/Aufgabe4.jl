@@ -3,7 +3,7 @@ gr()
 # exact solution
 y(x) = (4.0/15.0)*x.^(5/2) - (19/15)*x .+ 1
 # second derivative
-ddy(x)= sqrt.(x)
+ddy(t, y)= sqrt.(y)
 
 #sample point distance
 h = 0.01

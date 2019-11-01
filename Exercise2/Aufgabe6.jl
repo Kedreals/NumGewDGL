@@ -1,13 +1,8 @@
 using Plots
 gr()
 
-function explicit_euler(f, y0, x0, h, x)
-    res = y0
-    for t in x0:h:x
-        res += f(res)*h
-    end
-    return res
-end
+include("../integration_methods.jl")
+
 
 f(y) = y^2
 y(x) = -1/(x-1)
