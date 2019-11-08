@@ -6,7 +6,7 @@ function explicit_euler(f, y0, x0, h, x)
     return res
 end
 
-function explicit_euler_vec(f, y0, x0, h, x_end)
+function explicit_euler_all_values(f, y0, x0, h, x_end)
     x = collect(x0:h:x_end)
     y = zeros(size(x,1))
     y[1] = y0
@@ -16,6 +16,17 @@ function explicit_euler_vec(f, y0, x0, h, x_end)
     end
 
     return y
+end
+
+function explicit_euler_vec(f, x0, t0, h, t_end)
+    t = collect(t0:h:t_end)
+    x_h = zeros((size(t,1), size(x0,1)))
+    x_h[1,:] = x0
+
+    for i in 1:size(t,1)-1
+        x_h[i+1,:] = x_h[i,:] .+ h.*f(t[i], x_h[i,:])
+    end
+    return x_h
 end
 
 function implicit_euler(f, df, y0, x0, h, x)
@@ -32,7 +43,7 @@ function implicit_euler(f, df, y0, x0, h, x)
     return res
 end
 
-function implicit_euler_vec(f, df, y0, x0, h, x_end)
+function implicit_euler_all_values(f, df, y0, x0, h, x_end)
     x_val = collect(x0:h:x_end)
     y_val = zeros(size(x_val, 1))
     y_val[1] = y0
