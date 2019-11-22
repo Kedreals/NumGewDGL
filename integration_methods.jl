@@ -40,6 +40,22 @@ function explicit_euler_vec(f, x0, t0, h, t_end)
     return x_h
 end
 
+function ERK_vec(f, x0, t0, h, t_end; c=[0; 1/2; 1/2; 1], A=[0 0 0 0; 1/2 0 0 0; 0 1/2 0 0; 0 0 1 0], b=[1/6 1/3 1/3 1/6])
+    t = collect(t0:h:t_end)
+    x_h = zeros((size(t,1), size(x0,1)))
+    x_h[1,:] = x0
+
+    for i in 1:size(t,1)-1
+        v = zeros((size(c,1), size(x0,1)))
+        v[1,:] = f(t[i], x_h[i,:])
+        for j in 2:size(v,1)
+            v[j,:] = f(t[i]+c[j]*h, x_h[i,:]' + h.*sum(A[j,1:(j-1)].*v[1:(j-1),:], dims =1))
+        end
+        x_h[i+1,:] = x_h[i,:]' .+ h .* sum(b[1:size(v,1)] .* v[1:size(v,1),:], dims=1)
+    end
+    return x_h
+end
+
 function RK3_vec(f, x0, t0, h, t_end)
     t = collect(t0:h:t_end)
     x_h = zeros((size(t,1), size(x0,1)))
