@@ -1,0 +1,8 @@
+errorsquares of first problem
+    RK4:     2.2514192904696885e-15
+    England: 2.251419286377605e-15
+    3/8 Rule:2.251419286377605e-15
+errorsquares of first problem
+    RK4:     20.869576137198482
+    England: 20.869576137198482
+    3/8 Rule:20.869576137198482
