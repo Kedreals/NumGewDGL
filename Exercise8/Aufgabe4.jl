@@ -41,6 +41,13 @@ r_ab5 = adams_bashforth_five(f,r0,0,h,t_end);
 using Plots
 pyplot()
 
+# anim = @animate for i=2:100
+#     plot(r_euler[(i-2)*trunc(Int,end/102)+1:i*trunc(Int, end/102),1], r_euler[(i-2)*trunc(Int,end/102)+1:i*trunc(Int, end/102),2], xlims=(-3*10.0^11,3*10.0^11), ylims=(-3*10.0^11,3*10.0^11), label="Euler Earth")
+#     plot!(r_euler[(i-2)*trunc(Int,end/102)+1:i*trunc(Int, end/102),5], r_euler[(i-2)*trunc(Int,end/102)+1:i*trunc(Int, end/102),6], label="Euler Mars")
+#     plot!(r_euler[(i-2)*trunc(Int,end/102)+1:i*trunc(Int, end/102),9], r_euler[(i-2)*trunc(Int,end/102)+1:i*trunc(Int, end/102),10], label="Euler Sun")
+# end
+# gif(anim, "Euler_Solar_System.gif", fps=15)
+
 plot(r_euler[:,1], r_euler[:,2], label="Euler Earth")
 plot!(r_erk[:,1],  r_erk[:,2],   label="RK Earth")
 plot!(r_ab5[:,1],  r_ab5[:,2],   label="Adams Bashforth Earth")
