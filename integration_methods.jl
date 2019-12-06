@@ -102,3 +102,40 @@ function implicit_euler_all_values(f, df, y0, x0, h, x_end)
     end
     return y_val
 end
+
+function adams_bashforth_five(f, x0, t0, h, t_end)
+    t = collect(t0:h:t_end);
+    res = zeros((size(t,1), size(x0,1)))
+    res[1,:] = x0;
+
+    if size(t,1)< 2
+        return res;
+    end
+    res[2,:] = res[1,:] + h*f(t[1], res[1,:])
+
+    if size(t,1) < 3
+        return res;
+    end
+    res[3,:] = res[2,:] + h*(3.0/2.0*f(t[2],res[2,:])-1.0/2.0*f(t[1],res[1,:]));
+
+    if size(t,1) < 4
+        return res;
+    end
+    res[4,:] = res[3,:] + h*(23.0/12.0*f(t[3], res[3,:])-16.0/12.0*f(t[2],res[2,:])+5.0/12.0*f(t[1],res[1,:]));
+
+    if size(t,1) < 5
+        return res;
+    end
+    res[5,:] = res[4,:] + h*(55.0/24.0*f(t[4], res[4,:])-59.0/24.0*f(t[3],res[3,:])+37.0/24.0*f(t[2],res[2,:])-9.0/24.0*f(t[1],res[1,:]));
+
+    for n in 1:size(t,1)-5
+        res[n+5,:] = res[n+4,:] +
+            h*(1901.0/720.0*f(t[n+4],res[n+4,:])-
+                2774.0/720.0*f(t[n+3],res[n+3,:])+
+                2616.0/720.0*f(t[n+2],res[n+2,:])-
+                1274.0/720.0*f(t[n+1],res[n+1,:])+
+                251.0/720.0*f(t[n],res[n,:]));
+    end
+
+    return res
+end
