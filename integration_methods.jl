@@ -6,6 +6,10 @@ function explicit_euler(f, y0, x0, h, x)
     return res
 end
 
+function ooc(hs, errors)
+    return (log.(abs.(errors[1:end-1]))-log.(abs.(errors[2:end])))./(log.(hs[1:end-1])-log.(hs[2:end]))
+end
+
 function explicit_euler_all_values(f, y0, x0, h, x_end)
     x = collect(x0:h:x_end)
     y = zeros(size(x,1))
@@ -101,6 +105,62 @@ function implicit_euler_all_values(f, df, y0, x0, h, x_end)
         y_val[i] = y_new
     end
     return y_val
+end
+
+function milne_simpson_two(f, df, x_start, t0, h, t_end)
+    t = collect(t0:h:t_end)
+    res = zeros((size(t,1), size(x_start, 1)))
+    res[1:2,:] = x_start[1:2]
+
+    for n in 2:size(t,1)-1
+        res[n+1,:] = res[n,:]
+        s = (1.0/3.0)*h*(4.0*f(t[n], res[n,:]) + f(t[n-1], res[n-1,:]))
+        #use Newton-Ralphs to find root of x_{n+1}-x_{n-1}-1/3*h*sum_{k=0}^2\beta_{3,k}f(t_{j+1-k},x_{j+1-k})
+        for j in 1:5
+            res[n+1,:]= res[n+1,:] - (res[n+1,:] - res[n-1,:]-(1.0/3.0)*h*f(t[n+1],res[n+1,:])-s)/(1.0 .-h*df(t[n+1],res[n+1,:]))
+        end
+    end
+    return res
+end
+
+function Nyström_three(f, x_start, t0, h, t_end)
+    t = collect(t0:h:t_end)
+    res = zeros((size(t,1), size(x_start, 1)))
+    res[1:3, :] = x_start[1:3]
+
+    for n in 3:size(t,1)-1
+        res[n+1,:] = res[n-1,:] + h/3.0 * (7*f(t[n], res[n,:]) - 2*f(t[n-1], res[n-1,:]) + f(t[n-2],res[n-2, :]))
+    end
+    return res
+end
+
+function adams_moulton_three(f, df, x_start, t0, h, t_end)
+    t = collect(t0:h:t_end)
+    res = zeros((size(t,1), size(x_start, 1)))
+    res[1:3,:] = x_start[1:3]
+
+    for n in 3:size(t,1)-1
+        res[n+1,:] = res[n,:]
+        s = h*((8.0/12.0)*f(t[n],res[n,:])-(1.0/12.0)*f(t[n-1],res[n-1,:]))
+        #use Newton-Ralphs to find root of x_n+1-x_n-h*sum_{k=0}^2\beta_{3,k}f(t_{j+1-k},x_{j+1-k})
+        for j in 1:5
+            res[n+1,:]= res[n+1,:] .- (res[n+1,:] .- res[n,:] .-h*(5.0/12.0)*f(t[n+1],res[n+1,:]).-s)/(1.0 .-h*df(t[n+1],res[n+1,:]))
+        end
+    end
+    return res
+end
+
+function adams_bashforth_three(f, x_start, t0, h, t_end)
+    t = collect(t0:h:t_end);
+    res = zeros((size(t,1), size(x_start,1)))
+    res[1:3,:] = x_start[1:3];
+
+    for n in 3:size(t,1)-1
+        res[n+1,:] = res[n,:] + h*(23.0/12.0*f(t[n], res[n,:])-16.0/12.0*f(t[n-1],res[n-1,:])+5.0/12.0*f(t[n-2],res[n-2,:]))
+    end
+
+
+    return res
 end
 
 function adams_bashforth_five(f, x0, t0, h, t_end)

@@ -1,0 +1,3 @@
+1.) open julia shell
+2.) > include("include_plots.jl")
+3.) > include(path_to_file)
