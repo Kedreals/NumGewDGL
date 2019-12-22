@@ -28,17 +28,15 @@ function special_linear_2_schritt_verfahren(f, df, x0s, t0, h, t_end, α; newton
     t = collect(t0:h:t_end)
     x = zeros(size(t, 1))
     x[1:2] = x0s
+    αs = [1.0, -1.0-α, α]
+    βs = [α/12.0+5.0/12.0, -2.0/3.0*α+2.0/3.0, -5.0*α/12.0-1.0/12.0]
 
     for i in 1:size(t,1)-2
         x[i+2] = x[i+1]
-        g(T,X)=X                                    +
-            (-1.0-α)*x[i+1]                         +
-            α*x[i]                                  -
-            h*((α/12.0 + 5.0/12.0)*f(T, X)          +
-            (-2.0*α/3.0 + 2.0/3.0)*f(t[i+1], x[i+1])+
-            (-5.0*α/12.0 + 1.0/12.0)*f(t[i], x[i]))
+        g(T,X)=αs[1]*X + αs[2]*x[i+1] + αs[3]*x[i] -
+            h*(βs[1]*f(T, X) + βs[2]*f(t[i+1], x[i+1]) + βs[3]*f(t[i], x[i]))
 
-        dg(T,X)= 1.0-(α/12.0 + 5.0/12.0)*h*df(T,X)
+        dg(T,X)= 1.0-βs[1]*h*df(T,X)
         for j in 1:newton_iterationen
             s = g(t[i+2], x[i+2])/dg(t[i+2], x[i+2])
             x[i+2] = x[i+2] - s
