@@ -1,3 +1,5 @@
+using LinearAlgebra
+
 function explicit_euler(f, y0, x0, h, x)
     res = y0
     for t in x0:h:(x-h)
@@ -20,6 +22,29 @@ function explicit_euler_all_values(f, y0, x0, h, x_end)
     end
 
     return y
+end
+
+function special_linear_2_schritt_verfahren(f, df, x0s, t0, h, t_end, α; newton_iterationen=5)
+    t = collect(t0:h:t_end)
+    x = zeros(size(t, 1))
+    x[1:2] = x0s
+
+    for i in 1:size(t,1)-2
+        x[i+2] = x[i+1]
+        g(T,X)=X                                    +
+            (-1.0-α)*x[i+1]                         +
+            α*x[i]                                  -
+            h*((α/12.0 + 5.0/12.0)*f(T, X)          +
+            (-2.0*α/3.0 + 2.0/3.0)*f(t[i+1], x[i+1])+
+            (-5.0*α/12.0 + 1.0/12.0)*f(t[i], x[i]))
+
+        dg(T,X)= 1.0-(α/12.0 + 5.0/12.0)*h*df(T,X)
+        for j in 1:newton_iterationen
+            s = g(t[i+2], x[i+2])/dg(t[i+2], x[i+2])
+            x[i+2] = x[i+2] - s
+        end
+    end
+    return x
 end
 
 function explicit_euler_modified(f1, f2, y0, x0, h, x_end)
@@ -90,7 +115,27 @@ function implicit_euler(f, df, y0, x0, h, x)
     return res
 end
 
-function implicit_euler_all_values(f, df, y0, x0, h, x_end)
+function implicit_euler_vec(f, J, x0, t0, h, te; newton_terminate=5)
+    t_val = collect(t0:h:te)
+    x_val = zeros(size(t_val, 1), size(x0, 1))
+    x_val[1,:] = x0
+    identity = I(size(x0, 1))
+
+    for i in 2:size(t_val, 1)
+        x_val[i,:] = x_val[i-1,:]
+        #use Newton Ralphs to find root of x_n+1 - x_n-h*f(t_n+1, x_n+1)
+        Dg(t,X)= identity-h*J(t, X)
+        g(t,X) = X-x_val[i-1,:]-h*f(t,X)
+        for j in 1:newton_terminate
+
+            step = Dg(t_val[i],x_val[i,:])\-g(t_val[i], x_val[i,:]);
+            x_val[i,:] = x_val[i,:] + step
+        end
+    end
+    return x_val
+end
+
+function implicit_euler_all_values(f, df, y0, x0, h, x_end; newton_terminate=5)
     x_val = collect(x0:h:x_end)
     y_val = zeros(size(x_val, 1))
     y_val[1] = y0
@@ -99,7 +144,7 @@ function implicit_euler_all_values(f, df, y0, x0, h, x_end)
         y_new = y_val[i-1]
         # use Newton-Ralphs to find root of y_n+1 - y_n - h*f(x_n+1, y_n+1)
         # that root is the next y value
-        for j in 1:5
+        for j in 1:newton_terminate
             y_new = y_new - (y_new - y_val[i-1] - h*f(x_val[i], y_new))/(1-h*df(x_val[i], y_new))
         end
         y_val[i] = y_new
