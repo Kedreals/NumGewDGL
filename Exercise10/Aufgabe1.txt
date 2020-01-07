@@ -1,0 +1,9 @@
+Explicit euler with h=0.001:  0.000174 seconds (3.02 k allocations: 333.859 KiB)
+Implicit euler with h=0.01:1 Newton step:  0.009929 seconds (8.49 k allocations: 510.796 KiB)
+10 Newton steps:  0.000720 seconds (12.11 k allocations: 892.813 KiB)
+20 Newton steps:  0.001271 seconds (24.11 k allocations: 1.737 MiB)
+At t=0.3
+Explicit Error=[-5.232194383542055e-5, -1.7544412993223208e-5, 6.98663568619879e-5]
+Implicit Error 01 steps: [9.167328802062169e-5, -9.067055749332857e-8, -9.158261742980324e-5]
+Implicit Error 10 steps: [2.044480552232386e-5, 3.609777064203035e-9, -2.044841526615583e-5]
+Implicit Error 20 steps: [2.0444805521879772e-5, 3.60977706412172e-9, -2.0448415265687456e-5]
