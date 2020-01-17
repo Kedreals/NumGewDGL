@@ -83,6 +83,57 @@ function ERK_vec(f, x0, t0, h, t_end; c=[0; 1/2; 1/2; 1], A=[0 0 0 0; 1/2 0 0 0;
     return x_h
 end
 
+function _step(f, x, t, h, c, A, b)
+    k = zeros((size(c,1), size(x0,1)))
+    k[1,:] = f(t, x)
+    for j in 2:size(k,1)
+        k[j,:] = f(t+c[j]*h, x + h.*sum(A[j,1:(j-1)].*k[1:(j-1),:], dims=1)')
+    end
+    x_b = x + h.* sum(b[2,1:size(k,1)] .* k[1:size(k,1),:], dims=1)'
+    x_t = x + h.* sum(b[1,1:size(k,1)] .* k[1:size(k,1),:], dims=1)'
+    return x_b, x_t
+end
+
+function _errApprox(x_b, x_t, x_h)
+    err = 0
+    for j in 1:size(x_b, 1)
+        err = max(err, abs(x_b[j]-x_t[j])/(1.0+abs(x_h[j])))
+    end
+    return err
+end
+
+function ARK_vec(f, x0, t0, h_start, t_end; c=[0; 1], A = [0 0; 1 0], b=[1 0;1/2 1/2], tol=10.0^-4.0, q=[1,2])
+    h = h_start; t = t0; x_b = x0; x_t = x0;
+    x_h = []; t_h = [];
+    err = 0;
+    push!(x_h, x_b)
+    push!(t_h, t)
+    while t<= t_end && t_h[end] != t_end
+        h = h_start
+        if t+h > t_end
+            h = t_end-t
+        end
+        x_b, x_t = _step(f, x_h[end], t, h, c, A, b)
+
+        err = _errApprox(x_b, x_t, x_h[end])
+
+        while err > tol
+            h = min(2.0, max(1.0/2.0, 9.0/10.0*(tol/err)^(1.0/(min(q...)+1.0))))*h
+            if t+h > t_end
+                h = t_end-t
+                x_b, x_t = _step(f, x_h[end], t, h, c, A, b)
+                break;
+            end
+            x_b, x_t = _step(f, x_h[end], t, h, c, A, b)
+            err = _errApprox(x_b, x_t, x_h[end])
+        end
+        t+=h;
+        push!(x_h,x_b)
+        push!(t_h, t)
+    end
+    return x_h, t_h
+end
+
 function RK3_vec(f, x0, t0, h, t_end)
     t = collect(t0:h:t_end)
     x_h = zeros((size(t,1), size(x0,1)))
