@@ -106,10 +106,11 @@ function ARK_vec(f, x0, t0, h_start, t_end; c=[0; 1], A = [0 0; 1 0], b=[1 0;1/2
     h = h_start; t = t0; x_b = x0; x_t = x0;
     x_h = []; t_h = [];
     err = 0;
+    adaptive_h(H, E) = min(2.0, max(1.0/2.0, 9.0/10.0*(tol/E)^(1.0/(min(q...)+1.0))))*H
     push!(x_h, x_b)
     push!(t_h, t)
     while t<= t_end && t_h[end] != t_end
-        h = h_start
+        #h = h_start
         if t+h > t_end
             h = t_end-t
         end
@@ -118,7 +119,7 @@ function ARK_vec(f, x0, t0, h_start, t_end; c=[0; 1], A = [0 0; 1 0], b=[1 0;1/2
         err = _errApprox(x_b, x_t, x_h[end])
 
         while err > tol
-            h = min(2.0, max(1.0/2.0, 9.0/10.0*(tol/err)^(1.0/(min(q...)+1.0))))*h
+            h = adaptive_h(h, err)
             if t+h > t_end
                 h = t_end-t
                 x_b, x_t = _step(f, x_h[end], t, h, c, A, b)
@@ -128,6 +129,7 @@ function ARK_vec(f, x0, t0, h_start, t_end; c=[0; 1], A = [0 0; 1 0], b=[1 0;1/2
             err = _errApprox(x_b, x_t, x_h[end])
         end
         t+=h;
+        h = adaptive_h(h, err)
         push!(x_h,x_b)
         push!(t_h, t)
     end
